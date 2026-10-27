@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Create Citizen Account — CivicFix{% endblock %}
+{% block content %}
+<div class="form-box">
+  <p class="eyebrow" style="justify-content:flex-start">Join <b>&nbsp;CivicFix</b></p>
+  <h2>Create a citizen account</h2>
+  <p class="muted">Register civic issues and track progress from your dashboard.</p>
+  <form method="POST" autocomplete="on">
+    <label for="name">Full name</label>
+    <input id="name" name="name" autocomplete="name" required maxlength="120" placeholder="Your full name">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="new-password" minlength="10" required placeholder="At least 10 characters">
+    <button class="btn btn-primary" type="submit" style="width:100%">Create citizen account</button>
+  </form>
+  <p class="muted" style="margin-top:12px">Engineer access is provisioned by the site administrator.</p>
+  <p class="muted" style="margin-top:12px">Already have an account? <a href="{{ url_for('login') }}" style="color:var(--accent);font-weight:600">Sign in</a></p>
+  <p class="muted" style="margin-top:12px">By registering, you acknowledge the <a href="{{ url_for('privacy') }}">Privacy Notice</a>.</p>
+</div>
+{% endblock %}

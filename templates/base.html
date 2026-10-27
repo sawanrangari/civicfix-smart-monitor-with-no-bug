@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#102a43">
+<meta name="description" content="CivicFix helps citizens report and track civic issues with clear status updates.">
+<title>{% block title %}Civic Complaints — quiet, fast, transparent{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="pillnav" aria-label="Primary">
+  <a class="mark" href="{{ url_for('home') }}">
+    <svg width="22" height="22" viewBox="0 0 29 29" fill="none" aria-hidden="true">
+      <circle cx="14.5" cy="14.5" r="14.5" fill="#fff"/>
+      <path d="M14.5 5.4c5 0 9.1 4.1 9.1 9.1s-4.1 9.1-9.1 9.1-9.1-4.1-9.1-9.1 4.1-9.1 9.1-9.1Zm0 5.6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" fill="#101318"/>
+    </svg>
+    CivicFix
+  </a>
+  <a href="{{ url_for('home') }}" data-i18n="Home">Home</a>
+  <a href="{{ url_for('status') }}" data-i18n="Public status">Status</a>
+  {% if session.get('user_id') %}
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="user-pill">{{ session.get('user_name') }} · {{ session.get('role') }}</span>
+    <a href="{{ url_for('logout') }}">Sign out</a>
+  {% else %}
+    <a href="{{ url_for('login') }}" data-i18n="Sign in">Sign in</a>
+    <a class="reg" href="{{ url_for('register') }}" data-i18n="Get started">Sign up</a>
+  {% endif %}
+  <label class="language-picker" aria-label="Choose website language"><span aria-hidden="true">文</span><select id="siteLanguage" aria-label="Website language"><option value="en">English</option><option value="hi">हिन्दी</option><option value="mr">मराठी</option></select></label>
+</nav>
+{% block hero %}{% endblock %}
+<div class="page-wrap">
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+<footer><span data-i18n="CivicFix · Street Light & Civic Complaints">CivicFix · Street Light & Civic Complaints</span> <span class="footer-note" data-i18n="Built for clearer, more accessible civic services.">Built for clearer, more accessible civic services.</span> <a href="{{ url_for('privacy') }}">Privacy</a></footer>
+<div class="chat-launcher" id="chatLauncher"><button type="button" id="chatOpen" aria-label="Open CivicFix help chatbot"><span class="chat-bubble-icon">✦</span><span data-i18n="Need help?">Need help?</span><span class="chat-online"></span></button></div>
+<section class="help-chat" id="helpChat" aria-label="CivicFix citizen help chatbot" hidden>
+  <div class="chat-head"><div class="chat-avatar">✦</div><div class="chat-head-copy"><strong data-i18n="CivicFix Help">CivicFix Help</strong><small data-i18n="Citizen support · Available anytime">Citizen support · Available anytime</small></div><button type="button" id="chatClose" class="chat-close" aria-label="Close chatbot">×</button></div>
+  <div class="chat-messages" id="chatMessages" aria-live="polite"><div class="chat-msg bot" data-i18n="Hi! I can help you submit a complaint, track its status, or understand the website. What do you need?">Hi! I can help you submit a complaint, track its status, or understand the website. What do you need?</div></div>
+  <div class="chat-quick-actions"><button type="button" data-chat-intent="submit" data-i18n="Register a complaint">Register a complaint</button><button type="button" data-chat-intent="track" data-i18n="Track complaint">Track complaint</button><button type="button" data-chat-intent="location" data-i18n="Add location">Add location</button></div>
+  <form id="chatForm" class="chat-entry"><input id="chatInput" autocomplete="off" placeholder="Type your question…" data-i18n-placeholder="Type your question…" aria-label="Type your question"><button type="submit" aria-label="Send message">➤</button></form>
+  <p class="chat-disclaimer" data-i18n="Quick guidance only. For emergencies, contact the relevant emergency service.">Quick guidance only. For emergencies, contact the relevant emergency service.</p>
+</section>
+<script src="{{ url_for('static', filename='civic-help.js') }}" defer></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}All Complaints — Engineer{% endblock %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <p class="eyebrow" style="justify-content:flex-start">Engineer · <b>&nbsp;{{ total }} total</b></p>
+    <h2>All Complaints</h2>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a href="{{ url_for('engineer_insights') }}" class="btn btn-quiet">Hotspots</a>
+    <a href="{{ url_for('esp_devices') }}" class="btn btn-primary">ESP32 Devices</a>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat pending">Pending<b>{{ counts.get('Pending',0) }}</b></div>
+  <div class="stat progress">In Progress<b>{{ counts.get('In Progress',0) }}</b></div>
+  <div class="stat done">Completed<b>{{ counts.get('Completed',0) }}</b></div>
+</div>
+<form method="GET" class="filters-form">
+  <select name="status" onchange="this.form.submit()">
+    <option value="All" {% if status_filter=='All' %}selected{% endif %}>All Status</option>
+    {% for s in statuses %}
+    <option {% if status_filter==s %}selected{% endif %}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <select name="category" onchange="this.form.submit()">
+    <option value="All" {% if category_filter=='All' %}selected{% endif %}>All Categories</option>
+    {% for cat in categories %}
+    <option {% if category_filter==cat %}selected{% endif %}>{{ cat }}</option>
+    {% endfor %}
+  </select>
+</form>
+{% if complaints %}
+<div class="table-wrap">
+<table>
+<tr><th>ID</th><th>Category</th><th>Title</th><th>Citizen</th><th>Area</th><th>Status</th><th></th></tr>
+{% for c in complaints %}
+<tr>
+  <td>#{{ c['id'] }}</td>
+  <td>{{ c['category'] }}{% if c['category']=='Other' and c['other_detail'] %}<br><span class="muted">{{ c['other_detail'] }}</span>{% endif %}</td>
+  <td>{{ c['title'] }} {% if c['image_path'] %}<span class="muted">[Photo]</span>{% endif %}{% if c['latitude'] %}<span class="muted">[GPS]</span>{% endif %}</td>
+  <td>{{ c['citizen_name'] }}</td>
+  <td>{{ c['area'] }}</td>
+  <td><span class="badge {{ c['status']|lower|replace(' ','-') }}">{{ c['status'] }}</span></td>
+  <td><a href="{{ url_for('engineer_view_complaint', cid=c['id']) }}" style="color:var(--accent);font-weight:600">Open ›</a></td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% else %}
+<div class="card"><p>Quiet for now — no complaints in this filter.</p></div>
+{% endif %}
+
+<div id="autoComplaintToast" role="status" aria-live="polite"
+     style="display:none;position:fixed;right:18px;bottom:18px;z-index:9999;max-width:420px;background:#0e8271;color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-weight:700">
+</div>
+<script>
+(function () {
+  let lastSeenId = Number({{ max_auto_id|default(0)|tojson }});
+  const endpoint = {{ url_for('engineer_auto_complaints')|tojson }};
+  const dashboardUrl = {{ url_for('engineer_dashboard')|tojson }};
+  const toast = document.getElementById('autoComplaintToast');
+  let busy = false;
+
+  async function checkAutoComplaints() {
+    if (busy) return;
+    busy = true;
+    try {
+      const response = await fetch(endpoint + '?after_id=' + encodeURIComponent(lastSeenId), {
+        headers: {'Accept': 'application/json'},
+        cache: 'no-store'
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.ok || !Array.isArray(data.complaints) || data.complaints.length === 0) return;
+
+      lastSeenId = Math.max(lastSeenId, ...data.complaints.map(c => Number(c.id) || 0));
+      toast.innerHTML = '<div style="margin-bottom:5px">✓ Automatic complaint registered</div>' +
+        data.complaints.map(c => '<div style="font-weight:500;margin-top:4px">' +
+          escapeHtml(c.title) + ' (#' + escapeHtml(String(c.id)) + ')</div>').join('');
+      toast.style.display = 'block';
+
+      // Reload after a short delay so the new complaint appears in the table.
+      setTimeout(function () { window.location.href = dashboardUrl; }, 3500);
+    } catch (e) {
+      // The dashboard keeps working if polling briefly fails.
+    } finally {
+      busy = false;
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (ch) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  setInterval(checkAutoComplaints, 5000);
+})();
+</script>
+
+{% endblock %}

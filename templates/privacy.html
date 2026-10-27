@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Privacy Notice — CivicFix{% endblock %}
+{% block content %}
+<div class="card detail">
+  <p class="eyebrow">CivicFix <b>Privacy notice</b></p>
+  <h2>How CivicFix uses information</h2>
+  <p>This project is a civic-complaint prototype for reporting and tracking local infrastructure issues.</p>
+  <h3>Information you submit</h3>
+  <ul>
+    <li>Account details such as your name and email address. Passwords are stored as password hashes, not as readable text.</li>
+    <li>Complaint category, title, description, area, and any photo you choose to upload.</li>
+    <li>Latitude and longitude only when you choose to share your location through the browser.</li>
+  </ul>
+  <h3>Infrastructure telemetry</h3>
+  <p>Connected ESP32 devices may send configured site coordinates, sensor readings, and alert states so the system can create infrastructure complaints.</p>
+  <h3>How the information is used</h3>
+  <p>Information is used to display and manage complaints, let citizens track their own reports, and let authorized engineers review and update reports. Do not submit passwords for other services or unnecessary sensitive personal information.</p>
+  <h3>Storage and retention</h3>
+  <p>Information is stored using the database and file storage configured by the site operator. Availability and retention depend on that hosting configuration. Contact the project maintainer through the project's GitHub repository if you need help with a record.</p>
+  <h3>Third-party services</h3>
+  <p>Complaint pages may link to or embed Google Maps when coordinates are supplied. Opening those maps is subject to Google's own terms and privacy practices. The built-in help chat is a local FAQ assistant and does not send messages to an external AI service.</p>
+  <p class="muted">This is a project privacy notice, not legal advice. The operator should review it and add an official contact and retention policy before public or production use.</p>
+  <p><a class="btn btn-quiet" href="{{ url_for('home') }}">Back to CivicFix</a></p>
+</div>
+{% endblock %}
